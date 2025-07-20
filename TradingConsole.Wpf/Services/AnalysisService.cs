@@ -1176,7 +1176,7 @@ namespace TradingConsole.Wpf.Services
             result.FinalTradeSignal = playbook;
             result.MarketNarrative = GenerateMarketNarrative(result);
 
-            if (result.FinalTradeSignal != oldSignal && Math.Abs(result.ConvictionScore) >= 3)
+            if (result.FinalTradeSignal != oldSignal && Math.Abs(result.ConvictionScore) >= 5)
             {
                 _signalLoggerService.LogSignal(result);
                 Task.Run(() => _notificationService.SendTelegramSignalAsync(result));
