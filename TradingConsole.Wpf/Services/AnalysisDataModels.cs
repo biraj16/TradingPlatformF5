@@ -62,6 +62,14 @@ namespace TradingConsole.Wpf.Services
         public string InstitutionalIntentSignal { get; set; } = "Neutral";
     }
 
+    // --- ADDED: New state class for IV Skew analysis ---
+    public class IvSkewState
+    {
+        public List<decimal> CallIvHistory { get; } = new List<decimal>();
+        public List<decimal> PutIvHistory { get; } = new List<decimal>();
+        public List<decimal> SkewHistory { get; } = new List<decimal>();
+    }
+
 
     public class IntradayIvState
     {

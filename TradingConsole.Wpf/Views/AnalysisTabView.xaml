@@ -121,6 +121,8 @@
                     <DataGridTextColumn Header="Structure (Multi-Day)" Binding="{Binding MarketStructure}" Width="160"/>
                     <DataGridTextColumn Header="vs Y-Profile" Binding="{Binding YesterdayProfileSignal}" Width="180"/>
                     <DataGridTextColumn Header="Institutional Intent" Binding="{Binding InstitutionalIntent}" Width="220"/>
+                    <!-- ADDED: New column for IV Skew Signal -->
+                    <DataGridTextColumn Header="IV Skew Signal" Binding="{Binding IvSkewSignal}" Width="180"/>
 
                     <!-- Price Action Columns -->
                     <DataGridTemplateColumn Header="Open Type" Width="200">

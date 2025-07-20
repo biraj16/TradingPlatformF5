@@ -289,6 +289,15 @@
                                 <TextBlock Text="{Binding MarketNarrative}" TextWrapping="Wrap" Foreground="LightGray" FontStyle="Italic"/>
                             </Border>
 
+                            <!-- ADDED: Context and IV Skew Signal -->
+                            <TextBlock Margin="0,10,0,0" Foreground="LightGray">
+                                <Run Text="Context:"/>
+                                <Run Text="{Binding IntradayContext}" FontWeight="SemiBold"/>
+                                <Run Text="|"/>
+                                <Run Text="IV Skew:"/>
+                                <Run Text="{Binding IvSkewSignal}" FontWeight="SemiBold"/>
+                            </TextBlock>
+
                             <Grid Margin="0,15,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>

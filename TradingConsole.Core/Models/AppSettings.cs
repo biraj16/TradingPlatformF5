@@ -48,6 +48,7 @@ namespace TradingConsole.Core.Models
         {
             TrendingBullDrivers = new ObservableCollection<SignalDriver>
             {
+                new SignalDriver("Bullish IV Momentum", 4), // ADDED
                 new SignalDriver("Bullish Pattern at Support", 4),
                 new SignalDriver("Acceptance above Y-VAH", 4),
                 new SignalDriver("Rejection at Y-VAL", 4),
@@ -56,13 +57,15 @@ namespace TradingConsole.Core.Models
                 new SignalDriver("5m VWAP EMA confirms bullish trend", 1),
                 new SignalDriver("OI confirms new longs", 2),
                 new SignalDriver("IB breakout is extending", 2),
-                new SignalDriver("IV contracting supports calm uptrend", 1),
                 new SignalDriver("Bullish OBV Div at Profile Support", 3),
                 new SignalDriver("Bullish RSI Div at Profile Support", 2)
             };
 
             TrendingBearDrivers = new ObservableCollection<SignalDriver>
             {
+                new SignalDriver("Bearish IV Momentum", 4), // ADDED
+                new SignalDriver("Bearish Skew Divergence", 3), // ADDED
+                new SignalDriver("Range Contraction", 2), // ADDED
                 new SignalDriver("Bearish Pattern at Resistance", 4),
                 new SignalDriver("Acceptance below Y-VAL", 4),
                 new SignalDriver("Rejection at Y-VAH", 4),
@@ -71,7 +74,6 @@ namespace TradingConsole.Core.Models
                 new SignalDriver("5m VWAP EMA confirms bearish trend", 1),
                 new SignalDriver("OI confirms new shorts", 2),
                 new SignalDriver("IB breakdown is extending", 2),
-                new SignalDriver("IV spiking confirms fear", 2),
                 new SignalDriver("Bearish OBV Div at Profile Resistance", 3),
                 new SignalDriver("Bearish RSI Div at Profile Resistance", 2)
             };
@@ -87,6 +89,7 @@ namespace TradingConsole.Core.Models
 
             RangeBoundBearishDrivers = new ObservableCollection<SignalDriver>
             {
+                new SignalDriver("Range Contraction", 3), // ADDED
                 new SignalDriver("Bearish Pattern at Resistance", 4),
                 new SignalDriver("Bearish OBV Div at range high", 3),
                 new SignalDriver("Bearish RSI Div at range high", 2),
@@ -96,11 +99,13 @@ namespace TradingConsole.Core.Models
 
             VolatileBullishDrivers = new ObservableCollection<SignalDriver>
             {
+                new SignalDriver("Bullish IV Momentum", 4), // ADDED
                 new SignalDriver("Strong bullish confluence with Inst. backing", 4)
             };
 
             VolatileBearishDrivers = new ObservableCollection<SignalDriver>
             {
+                new SignalDriver("Bearish IV Momentum", 4), // ADDED
                 new SignalDriver("Strong bearish confluence with Inst. backing", 4)
             };
         }

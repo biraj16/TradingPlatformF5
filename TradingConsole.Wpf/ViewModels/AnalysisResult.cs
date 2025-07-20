@@ -36,8 +36,6 @@ namespace TradingConsole.Wpf.ViewModels
 
     public class AnalysisResult : ObservableModel
     {
-        // --- REFACTORED: This new method encapsulates the logic for updating an existing object
-        // from a new one, which removes a massive block of redundant code from AnalysisTabViewModel.
         public void Update(AnalysisResult source)
         {
             Symbol = source.Symbol;
@@ -67,6 +65,7 @@ namespace TradingConsole.Wpf.ViewModels
             IvRank = source.IvRank;
             IvPercentile = source.IvPercentile;
             IvTrendSignal = source.IvTrendSignal;
+            IvSkewSignal = source.IvSkewSignal; // ADDED
             RsiValue1Min = source.RsiValue1Min;
             RsiSignal1Min = source.RsiSignal1Min;
             RsiValue5Min = source.RsiValue5Min;
@@ -138,6 +137,8 @@ namespace TradingConsole.Wpf.ViewModels
         private decimal _currentIv;
         private decimal _avgIv;
         private string _ivSignal = "N/A";
+        private string _ivSkewSignal = "N/A"; // ADDED
+        public string IvSkewSignal { get => _ivSkewSignal; set => SetProperty(ref _ivSkewSignal, value); } // ADDED
 
         private decimal _rsiValue1Min;
         public decimal RsiValue1Min { get => _rsiValue1Min; set => SetProperty(ref _rsiValue1Min, value); }
