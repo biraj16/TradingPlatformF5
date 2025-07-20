@@ -48,65 +48,86 @@ namespace TradingConsole.Core.Models
         {
             TrendingBullDrivers = new ObservableCollection<SignalDriver>
             {
-                new SignalDriver("Bullish IV Momentum", 4), // ADDED
-                new SignalDriver("Bullish Pattern at Support", 4),
-                new SignalDriver("Acceptance above Y-VAH", 4),
-                new SignalDriver("Rejection at Y-VAL", 4),
+                new SignalDriver("True Acceptance Above Y-VAH", 5),
+                new SignalDriver("Bullish IV Momentum", 4),
+                new SignalDriver("Look Below and Fail at Y-VAL", 4),
+                new SignalDriver("Bullish Pattern at Key Support", 4),
+                new SignalDriver("Bullish Skew Divergence (Full)", 3),
                 new SignalDriver("Institutional Intent is Bullish", 3),
+                new SignalDriver("IB breakout is extending", 3),
+                new SignalDriver("Initiative Buying Above Y-VAH", 2),
+                new SignalDriver("Bullish Skew Divergence (Partial)", 2),
+                new SignalDriver("Bullish Pattern with Volume Confirmation", 2),
                 new SignalDriver("Price above VWAP", 2),
-                new SignalDriver("5m VWAP EMA confirms bullish trend", 1),
                 new SignalDriver("OI confirms new longs", 2),
-                new SignalDriver("IB breakout is extending", 2),
-                new SignalDriver("Bullish OBV Div at Profile Support", 3),
-                new SignalDriver("Bullish RSI Div at Profile Support", 2)
+                new SignalDriver("Bullish OBV Div at Profile Support", 2),
+                new SignalDriver("Bullish RSI Div at Profile Support", 2),
+                new SignalDriver("5m VWAP EMA confirms bullish trend", 1),
+                new SignalDriver("Bullish Pattern (Unconfirmed)", 1)
             };
 
             TrendingBearDrivers = new ObservableCollection<SignalDriver>
             {
-                new SignalDriver("Bearish IV Momentum", 4), // ADDED
-                new SignalDriver("Bearish Skew Divergence", 3), // ADDED
-                new SignalDriver("Range Contraction", 2), // ADDED
-                new SignalDriver("Bearish Pattern at Resistance", 4),
-                new SignalDriver("Acceptance below Y-VAL", 4),
-                new SignalDriver("Rejection at Y-VAH", 4),
+                new SignalDriver("True Acceptance Below Y-VAL", 5),
+                new SignalDriver("Bearish IV Momentum", 4),
+                new SignalDriver("Look Above and Fail at Y-VAH", 4),
+                new SignalDriver("Bearish Pattern at Key Resistance", 4),
+                new SignalDriver("Bearish Skew Divergence (Full)", 3),
                 new SignalDriver("Institutional Intent is Bearish", 3),
+                new SignalDriver("IB breakdown is extending", 3),
+                new SignalDriver("Initiative Selling Below Y-VAL", 2),
+                new SignalDriver("Bearish Skew Divergence (Partial)", 2),
+                new SignalDriver("Bearish Pattern with Volume Confirmation", 2),
                 new SignalDriver("Price below VWAP", 2),
-                new SignalDriver("5m VWAP EMA confirms bearish trend", 1),
                 new SignalDriver("OI confirms new shorts", 2),
-                new SignalDriver("IB breakdown is extending", 2),
-                new SignalDriver("Bearish OBV Div at Profile Resistance", 3),
-                new SignalDriver("Bearish RSI Div at Profile Resistance", 2)
+                new SignalDriver("Range Contraction", 2),
+                new SignalDriver("Bearish OBV Div at Profile Resistance", 2),
+                new SignalDriver("Bearish RSI Div at Profile Resistance", 2),
+                new SignalDriver("5m VWAP EMA confirms bearish trend", 1),
+                new SignalDriver("Bearish Pattern (Unconfirmed)", 1)
             };
 
             RangeBoundBullishDrivers = new ObservableCollection<SignalDriver>
             {
-                 new SignalDriver("Bullish Pattern at Support", 4),
+                 new SignalDriver("Look Below and Fail at Y-VAL", 4),
+                 new SignalDriver("Bullish Pattern at Key Support", 4),
+                 new SignalDriver("Bullish Skew Divergence (Full)", 3),
                  new SignalDriver("Bullish OBV Div at range low", 3),
+                 new SignalDriver("Bullish Skew Divergence (Partial)", 2),
+                 new SignalDriver("Bullish Pattern with Volume Confirmation", 2),
                  new SignalDriver("Bullish RSI Div at range low", 2),
+                 new SignalDriver("Possible range breakout with volume", 2),
                  new SignalDriver("Low volume suggests exhaustion (Bullish)", 1),
-                 new SignalDriver("Possible range breakout with volume", 2)
+                 new SignalDriver("Bullish Pattern (Unconfirmed)", 1)
             };
 
             RangeBoundBearishDrivers = new ObservableCollection<SignalDriver>
             {
-                new SignalDriver("Range Contraction", 3), // ADDED
-                new SignalDriver("Bearish Pattern at Resistance", 4),
+                new SignalDriver("Look Above and Fail at Y-VAH", 4),
+                new SignalDriver("Bearish Pattern at Key Resistance", 4),
+                new SignalDriver("Range Contraction", 3),
                 new SignalDriver("Bearish OBV Div at range high", 3),
+                new SignalDriver("Bearish Skew Divergence (Full)", 3),
+                new SignalDriver("Bearish Skew Divergence (Partial)", 2),
+                new SignalDriver("Bearish Pattern with Volume Confirmation", 2),
                 new SignalDriver("Bearish RSI Div at range high", 2),
+                new SignalDriver("Possible range breakdown with volume", 2),
                 new SignalDriver("Low volume suggests exhaustion (Bearish)", 1),
-                new SignalDriver("Possible range breakdown with volume", 2)
+                new SignalDriver("Bearish Pattern (Unconfirmed)", 1)
             };
 
             VolatileBullishDrivers = new ObservableCollection<SignalDriver>
             {
-                new SignalDriver("Bullish IV Momentum", 4), // ADDED
-                new SignalDriver("Strong bullish confluence with Inst. backing", 4)
+                new SignalDriver("Bullish IV Momentum", 5),
+                new SignalDriver("Strong bullish confluence with Inst. backing", 4),
+                new SignalDriver("Bullish Pattern with Volume Confirmation", 2)
             };
 
             VolatileBearishDrivers = new ObservableCollection<SignalDriver>
             {
-                new SignalDriver("Bearish IV Momentum", 4), // ADDED
-                new SignalDriver("Strong bearish confluence with Inst. backing", 4)
+                new SignalDriver("Bearish IV Momentum", 5),
+                new SignalDriver("Strong bearish confluence with Inst. backing", 4),
+                new SignalDriver("Bearish Pattern with Volume Confirmation", 2)
             };
         }
     }
@@ -152,7 +173,6 @@ namespace TradingConsole.Core.Models
 
         public StrategySettings Strategy { get; set; }
 
-        // --- NEW: Properties for Telegram Notifications ---
         public bool IsTelegramNotificationEnabled { get; set; }
         public string? TelegramBotToken { get; set; }
         public string? TelegramChatId { get; set; }
@@ -235,7 +255,6 @@ namespace TradingConsole.Core.Models
 
             Strategy = new StrategySettings();
 
-            // --- NEW: Default values for Telegram settings ---
             IsTelegramNotificationEnabled = false;
             TelegramBotToken = string.Empty;
             TelegramChatId = string.Empty;

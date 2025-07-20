@@ -724,30 +724,41 @@ namespace TradingConsole.Wpf.Services
         }
 
 
-        private string GetMarketProfileSignal(decimal ltp, MarketProfile? currentProfile, List<MarketProfileData>? historicalProfiles, DashboardInstrument instrument)
+        private void RunMarketProfileAnalysis(DashboardInstrument instrument, MarketProfile currentProfile, AnalysisResult result)
         {
-            if (currentProfile == null || ltp == 0) return "Building";
-
-            var previousDayProfile = historicalProfiles?.FirstOrDefault(p => p.Date.Date < DateTime.Today.Date);
-
-            if (previousDayProfile != null)
+            var previousDayProfile = _historicalMarketProfiles.GetValueOrDefault(instrument.SecurityId)?.FirstOrDefault(p => p.Date.Date < DateTime.Today.Date);
+            if (previousDayProfile == null)
             {
-                var prevVAH = previousDayProfile.TpoLevelsInfo.ValueAreaHigh;
-                var prevVAL = previousDayProfile.TpoLevelsInfo.ValueAreaLow;
-
-                if (ltp > prevVAH && currentProfile.DevelopingTpoLevels.ValueAreaLow > prevVAH) return "Acceptance > Y-VAH";
-                if (ltp < prevVAL && currentProfile.DevelopingTpoLevels.ValueAreaHigh < prevVAL) return "Acceptance < Y-VAL";
-                if (ltp > prevVAH && currentProfile.DevelopingTpoLevels.PointOfControl < prevVAH) return "Rejection at Y-VAH";
-                if (ltp < prevVAL && currentProfile.DevelopingTpoLevels.PointOfControl > prevVAL) return "Rejection at Y-VAL";
+                result.MarketProfileSignal = "Awaiting Previous Day Data";
+                return;
             }
 
-            string ibSignal = GetInitialBalanceSignal(ltp, currentProfile, instrument.SecurityId);
-            if (ibSignal != "Inside IB")
+            var ltp = instrument.LTP;
+            var prevVAH = previousDayProfile.TpoLevelsInfo.ValueAreaHigh;
+            var prevVAL = previousDayProfile.TpoLevelsInfo.ValueAreaLow;
+            var currentVAH = currentProfile.DevelopingTpoLevels.ValueAreaHigh;
+            var currentVAL = currentProfile.DevelopingTpoLevels.ValueAreaLow;
+
+            // True Acceptance (Highest Conviction)
+            if (currentVAL > prevVAH) { result.MarketProfileSignal = "True Acceptance Above Y-VAH"; return; }
+            if (currentVAH < prevVAL) { result.MarketProfileSignal = "True Acceptance Below Y-VAL"; return; }
+
+            // Look Above/Below and Fail (Strong Reversal)
+            var oneMinCandles = GetCandles(instrument.SecurityId, TimeSpan.FromMinutes(1));
+            if (oneMinCandles != null && oneMinCandles.Count > 2)
             {
-                return ibSignal;
+                var lastCandle = oneMinCandles.Last();
+                var secondLastCandle = oneMinCandles[^2];
+
+                if (secondLastCandle.High > prevVAH && lastCandle.Close < prevVAH) { result.MarketProfileSignal = "Look Above and Fail at Y-VAH"; return; }
+                if (secondLastCandle.Low < prevVAL && lastCandle.Close > prevVAL) { result.MarketProfileSignal = "Look Below and Fail at Y-VAL"; return; }
             }
 
-            return GetBaseMarketSignal(ltp, currentProfile);
+            // Initiative Buying/Selling (Medium Conviction)
+            if (ltp > prevVAH) { result.MarketProfileSignal = "Initiative Buying Above Y-VAH"; return; }
+            if (ltp < prevVAL) { result.MarketProfileSignal = "Initiative Selling Below Y-VAL"; return; }
+
+            result.MarketProfileSignal = "Trading Inside Y-Value";
         }
 
         private string GetInitialBalanceSignal(decimal ltp, MarketProfile profile, string securityId)
@@ -1082,7 +1093,7 @@ namespace TradingConsole.Wpf.Services
                 result.InitialBalanceLow = profile.InitialBalanceLow;
 
                 var historicalProfiles = _historicalMarketProfiles.GetValueOrDefault(instrumentForVolume.SecurityId);
-                result.MarketProfileSignal = GetMarketProfileSignal(instrumentForVolume.LTP, profile, historicalProfiles, instrumentForVolume);
+                RunMarketProfileAnalysis(instrumentForVolume, profile, result);
                 _marketProfileService.UpdateProfile(instrumentForVolume.SecurityId, profile.ToMarketProfileData());
             }
 
@@ -1150,11 +1161,9 @@ namespace TradingConsole.Wpf.Services
             var state = _ivSkewStates[indexInstrument.SecurityId];
             var result = _analysisResults[indexInstrument.SecurityId];
 
-            // 1. Find ATM strike
             int strikeStep = GetStrikePriceStep(indexInstrument.Symbol);
             decimal atmStrike = Math.Round(indexInstrument.LTP / strikeStep) * strikeStep;
 
-            // 2. Find ATM Call and Put from dashboard
             var atmCall = _instrumentCache.Values.FirstOrDefault(i =>
                 i.UnderlyingSymbol == indexInstrument.Symbol && i.InstrumentType == "OPTIDX" &&
                 i.DisplayName.Contains("CALL") && i.DisplayName.Contains(atmStrike.ToString("F0")));
@@ -1169,7 +1178,6 @@ namespace TradingConsole.Wpf.Services
                 return;
             }
 
-            // 3. Update state and calculate skew
             state.CallIvHistory.Add(atmCall.ImpliedVolatility);
             if (state.CallIvHistory.Count > 10) state.CallIvHistory.RemoveAt(0);
 
@@ -1186,13 +1194,25 @@ namespace TradingConsole.Wpf.Services
                 return;
             }
 
-            // 4. Generate intelligent signals
             var lastCallIv = state.CallIvHistory.Last();
-            var prevCallIv = state.CallIvHistory[^2];
+            var prevCallIv = state.CallIvHistory[^1];
             var lastPutIv = state.PutIvHistory.Last();
-            var prevPutIv = state.PutIvHistory[^2];
+            var prevPutIv = state.PutIvHistory[^1];
             var oneMinCandles = GetCandles(indexInstrument.SecurityId, TimeSpan.FromMinutes(1));
             var anchoredVwap = oneMinCandles?.LastOrDefault()?.AnchoredVwap ?? 0;
+
+            var lastFiveMinCandles = GetCandles(indexInstrument.SecurityId, TimeSpan.FromMinutes(5))?.TakeLast(2).ToList();
+            bool isNewLow = lastFiveMinCandles?.Count == 2 && lastFiveMinCandles[1].Low < lastFiveMinCandles[0].Low;
+            bool isNewHigh = lastFiveMinCandles?.Count == 2 && lastFiveMinCandles[1].High > lastFiveMinCandles[0].High;
+
+            bool isBullishSkew = state.SkewHistory.Last() < state.SkewHistory[^2];
+            bool isBearishSkew = state.SkewHistory.Last() > state.SkewHistory[^2];
+
+
+            if (isNewLow && isBullishSkew) { result.IvSkewSignal = "Bullish Skew Divergence (Full)"; return; }
+            if (isBullishSkew) { result.IvSkewSignal = "Bullish Skew Divergence (Partial)"; return; }
+            if (isNewHigh && isBearishSkew) { result.IvSkewSignal = "Bearish Skew Divergence (Full)"; return; }
+            if (isBearishSkew) { result.IvSkewSignal = "Bearish Skew Divergence (Partial)"; return; }
 
             if (lastCallIv > prevCallIv * 1.02m && lastCallIv > lastPutIv && indexInstrument.LTP > anchoredVwap)
             {
@@ -1210,18 +1230,6 @@ namespace TradingConsole.Wpf.Services
             {
                 result.IvSkewSignal = "Range Contraction";
                 return;
-            }
-
-            var lastTwoCandles = oneMinCandles?.TakeLast(2).ToList();
-            if (lastTwoCandles != null && lastTwoCandles.Count == 2)
-            {
-                bool isNewHigh = lastTwoCandles[1].High > lastTwoCandles[0].High;
-                bool isSkewRising = state.SkewHistory.Last() > state.SkewHistory[^2];
-                if (isNewHigh && isSkewRising)
-                {
-                    result.IvSkewSignal = "Bearish Skew Divergence";
-                    return;
-                }
             }
 
             result.IvSkewSignal = "Neutral";
@@ -1358,25 +1366,36 @@ namespace TradingConsole.Wpf.Services
 
         private bool CheckDriverCondition(AnalysisResult r, string driverName)
         {
+            bool isBullishPattern = r.CandleSignal5Min.Contains("Bullish");
+            bool isBearishPattern = r.CandleSignal5Min.Contains("Bearish");
+            bool atSupport = r.DayRangeSignal == "Near Low" || r.VwapBandSignal == "At Lower Band" || r.MarketProfileSignal.Contains("VAL");
+            bool atResistance = r.DayRangeSignal == "Near High" || r.VwapBandSignal == "At Upper Band" || r.MarketProfileSignal.Contains("VAH");
+            bool volumeConfirmed = r.VolumeSignal == "Volume Burst";
             switch (driverName)
             {
                 // --- NEW: Intelligent IV Skew Drivers ---
                 case "Bullish IV Momentum": return r.IvSkewSignal == "Bullish IV Momentum";
                 case "Bearish IV Momentum": return r.IvSkewSignal == "Bearish IV Momentum";
                 case "Range Contraction": return r.IvSkewSignal == "Range Contraction";
-                case "Bearish Skew Divergence": return r.IvSkewSignal == "Bearish Skew Divergence";
+                case "Bullish Skew Divergence (Full)": return r.IvSkewSignal == "Bullish Skew Divergence (Full)";
+                case "Bullish Skew Divergence (Partial)": return r.IvSkewSignal == "Bullish Skew Divergence (Partial)";
+                case "Bearish Skew Divergence (Full)": return r.IvSkewSignal == "Bearish Skew Divergence (Full)";
+                case "Bearish Skew Divergence (Partial)": return r.IvSkewSignal == "Bearish Skew Divergence (Partial)";
 
                 // Contextual Candlestick Drivers
-                case "Bullish Pattern at Support":
-                    return r.CandleSignal5Min.Contains("Bullish") && (r.DayRangeSignal == "Near Low" || r.VwapBandSignal == "At Lower Band" || r.MarketProfileSignal.Contains("VAL"));
-                case "Bearish Pattern at Resistance":
-                    return r.CandleSignal5Min.Contains("Bearish") && (r.DayRangeSignal == "Near High" || r.VwapBandSignal == "At Upper Band" || r.MarketProfileSignal.Contains("VAH"));
-
+                case "Bullish Pattern at Key Support": return isBullishPattern && atSupport;
+                case "Bearish Pattern at Key Resistance": return isBearishPattern && atResistance;
+                case "Bullish Pattern with Volume Confirmation": return isBullishPattern && volumeConfirmed;
+                case "Bearish Pattern with Volume Confirmation": return isBearishPattern && volumeConfirmed;
+                case "Bullish Pattern (Unconfirmed)": return isBullishPattern && !atSupport && !volumeConfirmed;
+                case "Bearish Pattern (Unconfirmed)": return isBearishPattern && !atResistance && !volumeConfirmed;
                 // Market Structure Drivers
-                case "Acceptance above Y-VAH": return r.MarketProfileSignal == "Acceptance > Y-VAH";
-                case "Acceptance below Y-VAL": return r.MarketProfileSignal == "Acceptance < Y-VAL";
-                case "Rejection at Y-VAH": return r.MarketProfileSignal == "Rejection at Y-VAH";
-                case "Rejection at Y-VAL": return r.MarketProfileSignal == "Rejection at Y-VAL";
+                case "True Acceptance Above Y-VAH": return r.MarketProfileSignal == "True Acceptance Above Y-VAH";
+                case "Look Below and Fail at Y-VAL": return r.MarketProfileSignal == "Look Below and Fail at Y-VAL";
+                case "Initiative Buying Above Y-VAH": return r.MarketProfileSignal == "Initiative Buying Above Y-VAH";
+                case "True Acceptance Below Y-VAL": return r.MarketProfileSignal == "True Acceptance Below Y-VAL";
+                case "Look Above and Fail at Y-VAH": return r.MarketProfileSignal == "Look Above and Fail at Y-VAH";
+                case "Initiative Selling Below Y-VAL": return r.MarketProfileSignal == "Initiative Selling Below Y-VAL";
 
                 // Trending Bull Drivers
                 case "Institutional Intent is Bullish": return r.InstitutionalIntent.Contains("Bullish");
