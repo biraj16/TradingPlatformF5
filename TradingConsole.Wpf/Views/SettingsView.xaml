@@ -161,6 +161,20 @@
                             </Grid>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="Notification Settings" MinWidth="400"
+          DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <StackPanel>
+                            <CheckBox Content="Enable Telegram Notifications"
+                  IsChecked="{Binding IsTelegramNotificationEnabled}"
+                  Margin="5,10"
+                  Foreground="White"/>
+                            <TextBlock Text="Telegram Bot Token:" Margin="5,5,5,0"/>
+                            <TextBox Text="{Binding TelegramBotToken, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+
+                            <TextBlock Text="Telegram Chat ID:" Margin="5,5,5,0"/>
+                            <TextBox Text="{Binding TelegramChatId, UpdateSourceTrigger=PropertyChanged}" Margin="5,0"/>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
 
                 <!-- Middle Column (Column 1) -->

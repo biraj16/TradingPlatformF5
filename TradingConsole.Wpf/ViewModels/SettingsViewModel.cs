@@ -62,7 +62,6 @@ namespace TradingConsole.Wpf.ViewModels
         private int _obvMovingAveragePeriod;
         public int ObvMovingAveragePeriod { get => _obvMovingAveragePeriod; set { if (_obvMovingAveragePeriod != value) { _obvMovingAveragePeriod = value; OnPropertyChanged(); } } }
 
-        // --- NEW: Properties for VWAP Band Multipliers ---
         private decimal _vwapUpperBandMultiplier;
         public decimal VwapUpperBandMultiplier { get => _vwapUpperBandMultiplier; set { if (_vwapUpperBandMultiplier != value) { _vwapUpperBandMultiplier = value; OnPropertyChanged(); } } }
         private decimal _vwapLowerBandMultiplier;
@@ -113,6 +112,18 @@ namespace TradingConsole.Wpf.ViewModels
 
         public bool IsKillSwitchActive => _mainViewModel.IsKillSwitchActive;
         #endregion
+
+        #region Notification Settings
+        private bool _isTelegramNotificationEnabled;
+        public bool IsTelegramNotificationEnabled { get => _isTelegramNotificationEnabled; set { if (_isTelegramNotificationEnabled != value) { _isTelegramNotificationEnabled = value; OnPropertyChanged(); } } }
+
+        private string? _telegramBotToken;
+        public string? TelegramBotToken { get => _telegramBotToken; set { if (_telegramBotToken != value) { _telegramBotToken = value; OnPropertyChanged(); } } }
+
+        private string? _telegramChatId;
+        public string? TelegramChatId { get => _telegramChatId; set { if (_telegramChatId != value) { _telegramChatId = value; OnPropertyChanged(); } } }
+        #endregion
+
 
         private StrategySettings _strategy = new StrategySettings();
         public StrategySettings Strategy { get => _strategy; set { _strategy = value; OnPropertyChanged(); } }
@@ -177,7 +188,6 @@ namespace TradingConsole.Wpf.ViewModels
             IvSpikeThreshold = _settings.IvSpikeThreshold;
             ObvMovingAveragePeriod = _settings.ObvMovingAveragePeriod;
 
-            // --- NEW: Load VWAP Band Multipliers ---
             VwapUpperBandMultiplier = _settings.VwapUpperBandMultiplier;
             VwapLowerBandMultiplier = _settings.VwapLowerBandMultiplier;
 
@@ -217,6 +227,11 @@ namespace TradingConsole.Wpf.ViewModels
                 MarketHolidays.Add(holiday);
             }
             NewHoliday = DateTime.Today;
+
+            // --- NEW: Load Notification settings ---
+            IsTelegramNotificationEnabled = _settings.IsTelegramNotificationEnabled;
+            TelegramBotToken = _settings.TelegramBotToken;
+            TelegramChatId = _settings.TelegramChatId;
         }
 
         private void ExecuteSaveSettings(object? parameter)
@@ -240,7 +255,6 @@ namespace TradingConsole.Wpf.ViewModels
             _settings.IvSpikeThreshold = IvSpikeThreshold;
             _settings.ObvMovingAveragePeriod = ObvMovingAveragePeriod;
 
-            // --- NEW: Save VWAP Band Multipliers ---
             _settings.VwapUpperBandMultiplier = VwapUpperBandMultiplier;
             _settings.VwapLowerBandMultiplier = VwapLowerBandMultiplier;
 
@@ -274,6 +288,11 @@ namespace TradingConsole.Wpf.ViewModels
             _settings.MaxDailyLossLimit = MaxDailyLossLimit;
 
             _settings.Strategy = this.Strategy;
+
+            // --- NEW: Save Notification settings ---
+            _settings.IsTelegramNotificationEnabled = IsTelegramNotificationEnabled;
+            _settings.TelegramBotToken = TelegramBotToken;
+            _settings.TelegramChatId = TelegramChatId;
 
             _settingsService.SaveSettings(_settings);
             MessageBox.Show("Settings saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

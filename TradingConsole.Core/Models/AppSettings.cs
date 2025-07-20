@@ -48,9 +48,7 @@ namespace TradingConsole.Core.Models
         {
             TrendingBullDrivers = new ObservableCollection<SignalDriver>
             {
-                // --- NEW: Added high-impact candlestick pattern drivers ---
                 new SignalDriver("Bullish Pattern at Support", 4),
-
                 new SignalDriver("Acceptance above Y-VAH", 4),
                 new SignalDriver("Rejection at Y-VAL", 4),
                 new SignalDriver("Institutional Intent is Bullish", 3),
@@ -65,9 +63,7 @@ namespace TradingConsole.Core.Models
 
             TrendingBearDrivers = new ObservableCollection<SignalDriver>
             {
-                // --- NEW: Added high-impact candlestick pattern drivers ---
                 new SignalDriver("Bearish Pattern at Resistance", 4),
-
                 new SignalDriver("Acceptance below Y-VAL", 4),
                 new SignalDriver("Rejection at Y-VAH", 4),
                 new SignalDriver("Institutional Intent is Bearish", 3),
@@ -82,9 +78,7 @@ namespace TradingConsole.Core.Models
 
             RangeBoundBullishDrivers = new ObservableCollection<SignalDriver>
             {
-                 // --- NEW: Added high-impact candlestick pattern drivers ---
                  new SignalDriver("Bullish Pattern at Support", 4),
-
                  new SignalDriver("Bullish OBV Div at range low", 3),
                  new SignalDriver("Bullish RSI Div at range low", 2),
                  new SignalDriver("Low volume suggests exhaustion (Bullish)", 1),
@@ -93,9 +87,7 @@ namespace TradingConsole.Core.Models
 
             RangeBoundBearishDrivers = new ObservableCollection<SignalDriver>
             {
-                // --- NEW: Added high-impact candlestick pattern drivers ---
                 new SignalDriver("Bearish Pattern at Resistance", 4),
-
                 new SignalDriver("Bearish OBV Div at range high", 3),
                 new SignalDriver("Bearish RSI Div at range high", 2),
                 new SignalDriver("Low volume suggests exhaustion (Bearish)", 1),
@@ -154,6 +146,11 @@ namespace TradingConsole.Core.Models
         public decimal MaxDailyLossLimit { get; set; }
 
         public StrategySettings Strategy { get; set; }
+
+        // --- NEW: Properties for Telegram Notifications ---
+        public bool IsTelegramNotificationEnabled { get; set; }
+        public string? TelegramBotToken { get; set; }
+        public string? TelegramChatId { get; set; }
 
 
         public AppSettings()
@@ -232,6 +229,11 @@ namespace TradingConsole.Core.Models
             };
 
             Strategy = new StrategySettings();
+
+            // --- NEW: Default values for Telegram settings ---
+            IsTelegramNotificationEnabled = false;
+            TelegramBotToken = string.Empty;
+            TelegramChatId = string.Empty;
         }
     }
 }

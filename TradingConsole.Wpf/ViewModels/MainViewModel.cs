@@ -45,6 +45,7 @@ namespace TradingConsole.Wpf.ViewModels
         private readonly MarketProfileService _marketProfileService;
         private readonly IndicatorStateService _indicatorStateService;
         private readonly SignalLoggerService _signalLoggerService;
+        private readonly NotificationService _notificationService;
         private readonly string _dhanClientId;
         private Timer? _optionChainRefreshTimer;
         private Timer? _ivRefreshTimer;
@@ -181,12 +182,13 @@ namespace TradingConsole.Wpf.ViewModels
             var settingsService = new SettingsService();
             Settings = new SettingsViewModel(settingsService, this);
             Settings.SettingsSaved += Settings_SettingsSaved;
+            _notificationService = new NotificationService(Settings);
 
             Dashboard = new DashboardViewModel();
             Portfolio = new PortfolioViewModel();
             Portfolio.PropertyChanged += Portfolio_PropertyChanged;
 
-            _analysisService = new AnalysisService(Settings, _apiClient, _scripMasterService, _historicalIvService, _marketProfileService, _indicatorStateService, _signalLoggerService, Dashboard);
+            _analysisService = new AnalysisService(Settings, _apiClient, _scripMasterService, _historicalIvService, _marketProfileService, _indicatorStateService, _signalLoggerService, _notificationService, Dashboard);
             _analysisService.OnAnalysisUpdated += OnAnalysisResultUpdated;
 
 

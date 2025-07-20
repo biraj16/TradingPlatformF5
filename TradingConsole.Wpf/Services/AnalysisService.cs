@@ -32,6 +32,7 @@ namespace TradingConsole.Wpf.Services
         private readonly MarketProfileService _marketProfileService;
         private readonly IndicatorStateService _indicatorStateService;
         private readonly SignalLoggerService _signalLoggerService;
+        private readonly NotificationService _notificationService;
         private readonly DashboardViewModel _dashboardViewModel;
         private readonly Dictionary<string, List<MarketProfileData>> _historicalMarketProfiles = new Dictionary<string, List<MarketProfileData>>();
 
@@ -81,7 +82,7 @@ namespace TradingConsole.Wpf.Services
         public event Action<string, Candle, TimeSpan>? CandleUpdated;
         #endregion
 
-        public AnalysisService(SettingsViewModel settingsViewModel, DhanApiClient apiClient, ScripMasterService scripMasterService, HistoricalIvService historicalIvService, MarketProfileService marketProfileService, IndicatorStateService indicatorStateService, SignalLoggerService signalLoggerService, DashboardViewModel dashboardViewModel)
+        public AnalysisService(SettingsViewModel settingsViewModel, DhanApiClient apiClient, ScripMasterService scripMasterService, HistoricalIvService historicalIvService, MarketProfileService marketProfileService, IndicatorStateService indicatorStateService, SignalLoggerService signalLoggerService, NotificationService notificationService, DashboardViewModel dashboardViewModel)
         {
             _settingsViewModel = settingsViewModel;
             _apiClient = apiClient;
@@ -90,6 +91,7 @@ namespace TradingConsole.Wpf.Services
             _marketProfileService = marketProfileService;
             _indicatorStateService = indicatorStateService;
             _signalLoggerService = signalLoggerService;
+            _notificationService = notificationService;
             _dashboardViewModel = dashboardViewModel;
 
             UpdateParametersFromSettings();
@@ -1177,6 +1179,7 @@ namespace TradingConsole.Wpf.Services
             if (result.FinalTradeSignal != oldSignal && Math.Abs(result.ConvictionScore) >= 5)
             {
                 _signalLoggerService.LogSignal(result);
+                Task.Run(() => _notificationService.SendTelegramSignalAsync(result));
             }
         }
 
